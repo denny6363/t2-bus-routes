@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>인천공항 출발 버스 시간표</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#14181f;--sub:#667085;--ac:#1b6ef3;--acbg:#e8f0fe;--ln:#e4e7ec;--past:#b5bbc6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1116;--card:#171b22;--tx:#eef1f6;--sub:#9aa4b2;--ac:#6ea2ff;--acbg:#1d2a44;--ln:#2a313c;--past:#4c5565}}
+:root[data-theme="dark"]{--bg:#0e1116;--card:#171b22;--tx:#eef1f6;--sub:#9aa4b2;--ac:#6ea2ff;--acbg:#1d2a44;--ln:#2a313c;--past:#4c5565}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;padding:16px;max-width:560px;margin:0 auto}
+h1{font-size:19px;margin:4px 0 2px}
+.sub{color:var(--sub);font-size:13px;margin-bottom:14px}
+select{width:100%;font-size:17px;padding:12px;border-radius:12px;border:1px solid var(--ln);background:var(--card);color:var(--tx);margin-bottom:4px}
+button{font:inherit;font-size:14px;padding:9px 14px;border-radius:10px;border:1px solid var(--ln);background:var(--card);color:var(--tx)}
+.tabs{display:flex;gap:8px;margin-bottom:10px}.tabs button{flex:1;padding:11px}.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:700}
+.next{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:18px;margin:14px 0;text-align:center}
+.next .lb{color:var(--sub);font-size:13px}.next .big{font-size:44px;font-weight:700;color:var(--ac);line-height:1.2}.next .rm{font-size:15px}.next .after{color:var(--sub);font-size:13px;margin-top:6px}
+.lg{display:flex;flex-wrap:wrap;gap:6px;font-size:11px;color:var(--sub);margin-bottom:6px;align-items:center}.lg span{padding:3px 8px;border-radius:8px}
+.rc{font-style:normal;font-size:11px;font-weight:700;color:#fff;padding:2px 6px;border-radius:6px;margin-right:5px;white-space:nowrap}
+.y{background:#f4ff3a!important;color:#14181f!important}.y3{background:#e5ff00!important;color:#14181f!important;box-shadow:0 0 10px #e5ff00}
+.row{display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;font-size:14px;color:var(--sub)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.t{padding:8px 0;text-align:center;border-radius:10px;background:var(--card);border:1px solid var(--ln);font-variant-numeric:tabular-nums;font-size:15px}
+.t small{display:block;font-size:10px;font-weight:600;color:var(--sub)}.t.y small{color:#14181f}
+.t.p{opacity:.45}.t.n{background:var(--acbg);border-color:var(--ac);color:var(--ac);font-weight:700}
+.t.g10{border-color:#1b6ef3}.t.g15{border-color:#ee7a00}.t.g20{border-color:#e03131;border-width:2px}
+#all{display:flex;flex-direction:column}
+.r{display:flex;align-items:flex-start;gap:10px;background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:8px 10px}
+.tw{flex:none;text-align:center;min-width:64px}.tm{display:block;font-weight:700;font-size:16px;padding:6px 8px;border-radius:9px;background:rgba(150,160,175,.22);font-variant-numeric:tabular-nums}
+.vn{display:block;font-size:11px;color:var(--sub);margin-top:2px}
+.st{font-size:12.5px;color:var(--sub);line-height:1.6}.st div{margin-bottom:2px}
+.r.p{opacity:.45}.r.n{border-color:var(--ac);box-shadow:0 0 0 2px var(--acbg)}
+.gp{text-align:center;font-size:12px;font-weight:600;border-radius:8px;padding:3px 0;margin:4px 0}
+.gp.g10{background:rgba(27,110,243,.22)}.gp.g15{background:rgba(240,120,0,.25)}.gp.g20{background:rgba(230,50,50,.25)}
+.note{color:var(--sub);font-size:12px;margin-top:16px;line-height:1.5}
+</style>
+</head>
+<body>
+<h1 id="ttl">인천공항 T2 출발 버스 시간표</h1>
+<div class="sub">전체 노선을 시간순으로 보거나, 정류장별로 확인하세요</div>
+<div class="tabs"><button id="bT1">T1 출발</button><button id="bT2" class="on">T2 출발</button></div>
+<div class="tabs"><button id="tAll" class="on">전체 시간순</button><button id="tStop">정류장별</button></div>
+<select id="sel" aria-label="정류장 선택" style="display:none"></select>
+<div class="next" id="next"></div>
+<div class="lg" id="lg"></div>
+<div class="row"><span id="cnt"></span><button id="share">공유하기</button></div>
+<div class="grid" id="grid" style="display:none"></div>
+<div id="all"></div>
+<div class="note">※ A4000은 하행 시 라마다호텔을 경유합니다. T1은 원본 마지막 행이 잘려 영통·망포역 23:10은 T2+20분으로 추정했습니다. 시간은 교통 상황·운행 변경에 따라 달라질 수 있으며 한국 시간(KST) 기준으로 계산합니다.</div>
+<script>
+var G="06:30 06:45 07:35 08:20 08:40 09:00 10:05 11:00 11:50 12:40 13:25 13:50 14:10 14:30 15:15 16:20 16:55 17:45 18:00 18:30 18:50 19:20 20:20 21:20 21:55 22:15 22:50";
+var RT=[
+["N4000","00:10 03:50 05:50",["동수원","한일타운","의왕(고천)","안양(범계)"]],
+["A4000","06:50 07:30 08:00 08:40 09:20 10:10 10:40 11:20 12:00 12:40 13:20 13:55 14:50 15:40 16:20 16:45 17:20 17:50 18:20 18:50 19:25 20:00 20:35 21:10 21:40 22:10 22:45",["동수원","한일타운","인재개발원"]],
+["A4100","06:15 06:40 07:10 07:35 08:10 08:30 08:55 09:30 09:50 10:20 10:50 11:15 11:40 12:05 12:45 13:05 13:25 13:50 14:10 14:30 15:05 15:30 16:00 16:25 16:50 17:10 17:35 18:10 18:30 18:45 19:10 19:35 20:05 20:40 21:05 21:35 22:00 22:25 22:50",["영통","망포역","래미안영통마크원1단지(신동수변공원)","수원터미널","수원역","서수원터미널"]],
+["A4100","07:50",["영통","망포역","수원역","서수원터미널"]],
+["A4100-1","07:40 11:50 17:40 19:00",["영통","망포역","해든호텔하이엔드수원","매교역","수원역","화서역","성균관대역"]],
+["A4100-2","07:00 09:15 12:30 14:55 17:55 20:25",["영통","망포역","고색역","호매실","서수원터미널"]],
+["A4200",G,["군포(산본)","금정역","안양(범계)","관악역"]],
+["A4200-1","07:15 08:00 09:35 10:30 11:35 12:20 13:15 14:40 15:50 17:20 18:15 19:45 20:50 22:35",["군포(산본)","안양(범계)","안양역"]],
+["A4400","07:20 13:10 16:40 19:05",["군포(산본)","의왕(고천)","의왕(내손동)","인덕원역","관악역"]]
+];
+var ORDER=["동수원","한일타운","인재개발원","의왕(고천)","의왕(내손동)","군포(산본)","금정역","안양(범계)","관악역","안양역","인덕원역","영통","망포역","래미안영통마크원1단지(신동수변공원)","수원터미널","수원역","서수원터미널","호매실","고색역","해든호텔하이엔드수원","매교역","화서역","성균관대역"];
+var CODES=[],ST={},TM={},TERM="T2";
+function sh(s){return s.split(" ").map(function(t){var m=toMin(t)+20,h=Math.floor(m/60),n=m%60;return (h<10?"0":"")+h+":"+(n<10?"0":"")+n}).join(" ")}
+function build(){
+ ST={};TM={};
+ RT.forEach(function(r){var ts=TERM==="T1"?sh(r[1]):r[1],ss=r[2];
+  if(TERM==="T1"&&r[1]==="07:50")ss=["영통","망포역","래미안영통마크원1단지(신동수변공원)","수원터미널","수원역","서수원터미널"];
+  if(CODES.indexOf(r[0])<0)CODES.push(r[0]);
+  ts.split(" ").forEach(function(t){(TM[t]=TM[t]||[]).push([r[0],ss]);ss.forEach(function(s){(ST[s]=ST[s]||[]).push([t,r[0]])})})});
+ Object.keys(ST).forEach(function(s){ST[s].sort(function(a,b){return a[0]<b[0]?-1:1})});
+}
+try{if(localStorage.getItem("t2bus_term")==="T1")TERM="T1"}catch(e){}
+build();
+function chip(c){return '<i class="rc" style="background:hsl('+(CODES.indexOf(c)*40+10)+',62%,40%)">'+c+'</i>'}
+function ycls(t){var n=TM[t].length;return n>=3?" y3":n>=2?" y":""}
+document.getElementById("lg").innerHTML='<span class="y">동시 2대</span><span class="y3">동시 3대+</span><span style="background:rgba(27,110,243,.22)">10분+ 간격</span><span style="background:rgba(240,120,0,.25)">15분+</span><span style="background:rgba(230,50,50,.25)">20분+</span><div style="width:100%">'+CODES.map(chip).join("")+'</div>';
+var sel=document.getElementById("sel");
+ORDER.forEach(function(s,i){var o=document.createElement("option");o.value=i;o.textContent=s;sel.appendChild(o)});
+try{var v=localStorage.getItem("t2bus2");if(v!==null&&ORDER[v])sel.value=v}catch(e){}
+function toMin(t){var a=t.split(":");return +a[0]*60+ +a[1]}
+function nowMin(){var p=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Seoul",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date()),h=0,m=0;p.forEach(function(x){if(x.type==="hour")h=+x.value%24;if(x.type==="minute")m=+x.value});return h*60+m}
+function fmt(d){var h=Math.floor(d/60),m=d%60;return (h?h+"시간 ":"")+m+"분"}
+function nextBox(ts,lbl,sub){
+ var n=nowMin(),idx=-1;
+ for(var i=0;i<ts.length;i++){if(toMin(ts[i])>=n){idx=i;break}}
+ var box=document.getElementById("next");
+ if(idx<0){box.innerHTML='<div class="lb">오늘 운행 종료</div><div class="big">'+ts[0]+'</div><div class="rm">내일 첫차</div>'}
+ else{var d=toMin(ts[idx])-n;box.innerHTML='<div class="lb">'+lbl+'</div><div class="big">'+ts[idx]+'</div><div class="rm">'+(d===0?"곧 출발":fmt(d)+" 후")+'</div><div class="after">'+sub(idx)+'</div>'}
+ return idx;
+}
+function gapCls(g){return g>=20?"g20":g>=15?"g15":"g10"}
+function renderStop(){
+ var s=ORDER[sel.value],L=ST[s],ts=L.map(function(x){return x[0]});
+ var idx=nextBox(ts,"다음 버스",function(i){return chip(L[i][1])+(L[i+1]?" 그다음 "+L[i+1][0]:"")});
+ document.getElementById("cnt").textContent=s+" · 하루 "+ts.length+"회";
+ document.getElementById("grid").innerHTML=L.map(function(x,i){var t=x[0],g=i?toMin(t)-toMin(L[i-1][0]):0;
+  return '<div class="t'+ycls(t)+(g>=10?" "+gapCls(g):"")+(idx<0||i<idx?" p":"")+(i===idx?" n":"")+'">'+t+'<small>'+x[1]+'</small>'+(g>=10?'<small>+'+g+'분</small>':'')+'</div>'}).join("");
+}
+function renderAll(){
+ var ts=Object.keys(TM).sort();
+ var idx=nextBox(ts,"다음 버스 (전체 노선)",function(i){return TM[ts[i]].map(function(x){return chip(x[0])}).join("")});
+ document.getElementById("cnt").textContent="전체 "+ts.length+"개 시간대";
+ var h="";
+ ts.forEach(function(t,i){var E=TM[t];
+  if(i>0){var g=toMin(t)-toMin(ts[i-1]);if(g>=10)h+='<div class="gp '+gapCls(g)+'">⏱ '+g+'분 간격</div>'}
+  h+='<div class="r'+(idx<0||i<idx?" p":"")+(i===idx?" n":"")+'"><span class="tw"><span class="tm'+ycls(t)+'">'+t+'</span><small class="vn">'+E.length+'대</small></span><span class="st">'+E.map(function(e){return '<div>'+chip(e[0])+e[1].join(", ")+'</div>'}).join("")+'</span></div>'});
+ document.getElementById("all").innerHTML=h;
+}
+function setTerm(t){TERM=t;build();
+ document.getElementById("bT1").className=t==="T1"?"on":"";document.getElementById("bT2").className=t==="T2"?"on":"";
+ var n="인천공항 "+t+" 출발 버스 시간표";document.getElementById("ttl").textContent=n;document.title=n;
+ try{localStorage.setItem("t2bus_term",t)}catch(e){}
+ render()}
+var mode="all";
+function setMode(m){mode=m;document.getElementById("tAll").className=m==="all"?"on":"";document.getElementById("tStop").className=m==="stop"?"on":"";render()}
+function render(){
+ var a=mode==="all";
+ sel.style.display=a?"none":"";
+ document.getElementById("grid").style.display=a?"none":"";
+ document.getElementById("all").style.display=a?"":"none";
+ a?renderAll():renderStop();
+}
+sel.onchange=function(){try{localStorage.setItem("t2bus2",sel.value)}catch(e){};render()};
+document.getElementById("share").onclick=function(){
+ var u=location.href;
+ if(navigator.share){navigator.share({title:document.title,url:u}).catch(function(){})}
+ else if(navigator.clipboard){navigator.clipboard.writeText(u).then(function(){alert("링크를 복사했어요")}).catch(function(){prompt("링크를 복사하세요",u)})}
+ else{prompt("링크를 복사하세요",u)}
+};
+document.getElementById("bT1").addEventListener("click",function(){setTerm("T1")});
+document.getElementById("bT2").addEventListener("click",function(){setTerm("T2")});
+document.getElementById("tAll").addEventListener("click",function(){setMode("all")});
+document.getElementById("tStop").addEventListener("click",function(){setMode("stop")});
+setTerm(TERM);setInterval(render,30000);
+</script>
+</body>
+</html>
